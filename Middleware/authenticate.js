@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
-import  User from '../model/userSchema.js';
+import  {collection1,collection2} from '../model/userSchema.js';
 
 const Authenticate = async (req,res,next) => {
     try{
         const token = req.cookies.jwtoken;
         const verifyToken = jwt.verify(token,process.env.SECRET_KEY);
 
-        const rootUser = await User.findOne({_id: verifyToken._id,"tokens.token":token});
+        const rootUser = await collection1.findOne({_id: verifyToken._id,"tokens.token":token});
         if(!rootUser)
         {
             throw new Error("User not found");

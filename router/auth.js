@@ -2,7 +2,7 @@ import express from 'express';
 const router = express.Router();
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import  User from '../model/userSchema.js';
+import  {collection1,collection2} from '../model/userSchema.js';
 import jwt from 'jsonwebtoken';
 import Authenticate from '../Middleware/authenticate.js';
 import multer from 'multer';
@@ -36,7 +36,7 @@ const addDetails = async(req,res)=>{
     console.log("Reached the backend");
     const name = req.body.name;
     const email = req.body.email;
-    const gender = req.body.gender;
+    const gender = req.body.gender; 
     const age = req.body.age;
     const password = req.body.password;
     console.log("age",age)
@@ -45,13 +45,14 @@ const addDetails = async(req,res)=>{
         return res.status(422).json({error: "please fill the details"});
     }
     try{
-        const userExist= await User.findOne({email:email});
+        const userExist= await collection1.findOne({email:email});
         if(userExist){
             return res.status(422).json({error: "email exist"});
         }
-        const user = new User({name,email,gender,age,password,profilepic});
+        const user = new collection1({name,email,gender,age,password,profilepic});
         user.password = await bcrypt.hash(user.password , 10)
         await user.save();
+        console.log(user);
         res.status(201).json({message: "registered succussfully"});
         
     }catch(err) {
@@ -91,5 +92,48 @@ router.get('/profile', Authenticate ,async(req,res) => {
     console.log("This is about page");
     res.send(req.rootUser);
 })
+
+//To update
+const updateDocument = async(name,email)=>{
+    try{
+        const result = await collection1.updateOne({name,email},{
+            $set:{
+                age: "101"
+            }
+        });
+        console.log(result);
+    }
+    catch(err){
+        console.log(err);
+    }
+}  
+
+// To sync data from collection 1 to collection2
+const sync = async(req,res)=>{
+    console.log("reached to sync")
+    collection1.find({name:"sowmya1"}).then(function(data, err) {
+      if (err) 
+      {
+        console.log("Thesre is an error");
+        console.log(err);
+      } 
+      else 
+      {
+        console.log("data",data);
+      }
+      collection2.insertMany(data,{ ordered: false }).then(d=>{
+        console.log('saved successfully');
+        updateDocument("sowmya1","sowmya1@gmail.com");
+      })
+      .catch(error =>{
+       //if the error is the duplicate error then we need to append comment it to the existing one
+          //console.log(data.report)
+          console.log(error);
+      })
+    })
+  }
+router.get('/sync',sync);
+
+
 
 export default router;

@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import userrouter from './router/auth.js';
 import cookieParser from 'cookie-parser';
-
 //--------------------- connecting to database---------------------------------------------
 async function initServer(){
     const app = express()
@@ -17,13 +16,13 @@ async function initServer(){
     app.use('/', userrouter);
     dotenv.config();
     const PORT = process.env.PORT || 5000;
-    try{
-      await mongoose.connect(process.env.ATLAS_URI);
-      console.log('connected to the mongodb at port {$PORT}')
+    // try{
+    //   await mongoose.connect(process.env.ATLAS_URI);
+    //   console.log('connected to the mongodb at port {$PORT}')
   
-    }catch(error){
-      console.log(error);
-    }
+    // }catch(error){
+    //   console.log(error);
+    // }
    /* const Middleware = (req,res,next)=>{
         next();
     }*/  
